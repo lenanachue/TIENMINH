@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocab Garden – Review Exercises</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+:root {
+  --g-deep:   #1a4d2e;
+  --g-mid:    #2d7a4f;
+  --g-light:  #4caf78;
+  --g-pale:   #a8d5b0;
+  --g-mist:   #edf7f0;
+  --g-100:    #d4edda;
+  --sun:      #f9e04b;
+  --soil:     #6b4226;
+  --coral:    #e07b54;
+  --red-soft: #fce4e4;
+  --red:      #c0392b;
+  --blue-soft:#e3f2fd;
+  --blue:     #1565c0;
+  --white:    #fdfffe;
+  --txt:      #1c3326;
+  --shadow:   rgba(26,77,46,0.12);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:var(--g-mist);color:var(--txt);min-height:100vh;overflow-x:hidden}
+
+/* ─── Floating leaves ─── */
+#leaf-bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+#leaf-bg span{position:absolute;opacity:.1;animation:floatup linear infinite;font-size:1.2rem}
+@keyframes floatup{0%{transform:translateY(105vh) rotate(0deg);opacity:0}10%{opacity:.12}90%{opacity:.08}100%{transform:translateY(-8vh) rotate(330deg);opacity:0}}
+
+/* ─── Nav ─── */
+.nav{position:relative;z-index:10;background:linear-gradient(135deg,var(--g-deep),var(--g-mid));padding:14px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:0 2px 12px var(--shadow)}
+.nav-brand{color:#fff;font-family:'Playfair Display',serif;font-size:1.15rem;display:flex;align-items:center;gap:8px}
+.session-switcher{display:flex;gap:8px;margin-left:auto}
+.sess-btn{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:6px 16px;border-radius:99px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;transition:all .2s}
+.sess-btn.active{background:#fff;color:var(--g-mid)}
+.sess-btn:hover:not(.active){background:rgba(255,255,255,.25)}
+
+/* ─── Hero banner ─── */
+.hero-banner{position:relative;z-index:1;background:linear-gradient(160deg,#b7e4c7,#d8f3dc 60%,#f0faf3);padding:28px 24px 22px;display:flex;align-items:center;gap:16px;border-bottom:2px solid var(--g-pale)}
+.hero-txt h1{font-family:'Playfair Display',serif;font-size:clamp(1.3rem,3vw,1.8rem);color:var(--g-deep)}
+.hero-txt p{font-size:.88rem;color:var(--g-mid);margin-top:4px;line-height:1.5}
+.hero-flowers{font-size:2.8rem;opacity:.6;line-height:1;flex-shrink:0}
+.score-panel{margin-left:auto;background:var(--g-deep);border-radius:14px;padding:10px 18px;text-align:center;color:#fff;flex-shrink:0}
+.score-panel .big{font-size:1.5rem;font-weight:800}
+.score-panel .lbl{font-size:.7rem;opacity:.75;text-transform:uppercase;letter-spacing:.06em}
+
+/* ─── Main layout ─── */
+.main{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:20px 16px 60px}
+
+/* ─── Exercise card ─── */
+.ex-card{background:var(--white);border-radius:18px;box-shadow:0 3px 16px var(--shadow);margin-bottom:22px;overflow:hidden;border:2px solid transparent;transition:border-color .2s}
+.ex-card.done{border-color:var(--g-light)}
+.ex-header{background:linear-gradient(90deg,var(--g-mid),var(--g-light));padding:14px 20px;display:flex;align-items:center;gap:10px}
+.ex-header .icon{font-size:1.4rem}
+.ex-header h2{color:#fff;font-size:1rem;font-weight:800}
+.ex-header .badge{margin-left:auto;background:rgba(255,255,255,.22);color:#fff;font-size:.7rem;padding:3px 10px;border-radius:99px;font-weight:700;letter-spacing:.04em}
+.ex-body{padding:18px 20px}
+
+/* ─── Progress bar ─── */
+.prog-wrap{height:5px;background:var(--g-100);border-radius:3px;margin-bottom:18px}
+.prog-fill{height:100%;background:var(--g-light);border-radius:3px;transition:width .5s cubic-bezier(.34,1.56,.64,1)}
+
+/* ─── MCQ ─── */
+.mcq-item{margin-bottom:18px}
+.mcq-q{font-size:.95rem;font-weight:700;color:var(--g-deep);margin-bottom:9px;line-height:1.5}
+.mcq-q .word-hl{color:var(--g-mid);font-style:italic}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.opt{border:1.8px solid var(--g-pale);border-radius:10px;padding:8px 12px;font-size:.88rem;cursor:pointer;transition:all .2s;background:var(--g-mist);font-family:'Nunito',sans-serif;text-align:left;color:var(--txt);font-weight:600}
+.opt:hover:not(:disabled){border-color:var(--g-mid);background:var(--g-100)}
+.opt.correct{border-color:#2e7d32;background:#e8f5e9;color:#1b5e20}
+.opt.wrong{border-color:var(--red);background:var(--red-soft);color:var(--red)}
+.opt:disabled{cursor:default}
+.mcq-fb{font-size:.8rem;margin-top:5px;min-height:18px;font-weight:600}
+.mcq-fb.ok{color:#2e7d32}.mcq-fb.err{color:var(--red)}
+
+/* ─── Fill in blank ─── */
+.fill-item{background:var(--g-mist);border-radius:12px;padding:14px 16px;margin-bottom:12px;border-left:4px solid var(--g-pale)}
+.fill-item.correct-bg{border-left-color:#2e7d32;background:#e8f5e9}
+.fill-item.wrong-bg{border-left-color:var(--red);background:var(--red-soft)}
+.fill-sent{font-size:.95rem;line-height:2;color:var(--txt)}
+.fill-input{border:none;border-bottom:2.5px solid var(--g-mid);background:transparent;font-size:.95rem;color:var(--g-deep);font-family:'Nunito',sans-serif;font-weight:700;width:120px;text-align:center;outline:none;padding:2px 4px;transition:border-color .2s}
+.fill-input:focus{border-bottom-color:var(--g-deep)}
+.fill-input.correct{border-bottom-color:#2e7d32;color:#2e7d32}
+.fill-input.wrong{border-bottom-color:var(--red);color:var(--red)}
+.fill-fb{font-size:.78rem;margin-top:4px;font-weight:700}
+.fill-fb.ok{color:#2e7d32}.fill-fb.err{color:var(--red)}
+
+/* ─── Word sort ─── */
+.sort-instruction{font-size:.85rem;color:var(--g-mid);margin-bottom:12px;font-style:italic}
+.word-bank{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;min-height:44px;padding:10px;background:var(--g-mist);border-radius:10px;border:1.8px dashed var(--g-pale)}
+.word-chip{background:var(--g-deep);color:#fff;padding:6px 14px;border-radius:99px;font-size:.85rem;font-weight:700;cursor:grab;user-select:none;transition:all .2s;border:2px solid transparent}
+.word-chip:active{cursor:grabbing;transform:scale(1.05)}
+.word-chip.placed{opacity:.4;pointer-events:none}
+.sort-buckets{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sort-bucket{border:2px dashed var(--g-pale);border-radius:12px;padding:12px;min-height:100px}
+.sort-bucket h4{font-size:.8rem;font-weight:800;color:var(--g-mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.sort-bucket .chips-area{display:flex;flex-wrap:wrap;gap:6px;min-height:36px}
+.sort-bucket .chips-area .word-chip{background:var(--g-mid);cursor:pointer}
+.sort-bucket .chips-area .word-chip:hover{background:var(--coral)}
+.sort-result{font-size:.82rem;margin-top:10px;font-weight:700;color:var(--g-mid)}
+
+/* ─── Odd one out ─── */
+.odd-item{margin-bottom:16px}
+.odd-q{font-size:.9rem;color:#557a63;margin-bottom:8px;font-weight:600}
+.odd-options{display:flex;flex-wrap:wrap;gap:8px}
+.odd-btn{border:2px solid var(--g-pale);background:var(--g-mist);border-radius:99px;padding:7px 16px;font-size:.88rem;font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;color:var(--txt);transition:all .2s}
+.odd-btn:hover:not(:disabled){border-color:var(--g-mid);background:var(--g-100)}
+.odd-btn.correct{border-color:#2e7d32;background:#e8f5e9;color:#1b5e20}
+.odd-btn.wrong{border-color:var(--red);background:var(--red-soft);color:var(--red)}
+.odd-btn:disabled{cursor:default}
+.odd-fb{font-size:.78rem;margin-top:5px;font-weight:600}
+.odd-fb.ok{color:#2e7d32}.odd-fb.err{color:var(--red)}
+
+/* ─── Error correction ─── */
+.err-item{background:var(--g-mist);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.err-sent{font-size:.95rem;line-height:1.8;color:var(--txt);margin-bottom:10px}
+.err-sent .underlined{text-decoration:underline;text-decoration-color:var(--red);color:var(--red);font-weight:700}
+.err-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.err-label{font-size:.78rem;color:var(--g-mid);font-weight:700;white-space:nowrap}
+.err-input{border:1.8px solid var(--g-pale);border-radius:8px;padding:5px 10px;font-size:.9rem;font-family:'Nunito',sans-serif;color:var(--txt);outline:none;width:150px;transition:border-color .2s}
+.err-input:focus{border-color:var(--g-mid)}
+.err-input.correct{border-color:#2e7d32;background:#e8f5e9;color:#1b5e20}
+.err-input.wrong{border-color:var(--red);background:var(--red-soft);color:var(--red)}
+.err-fb{font-size:.78rem;font-weight:700}
+.err-fb.ok{color:#2e7d32}.err-fb.err{color:var(--red)}
+
+/* ─── Sentence Completion ─── */
+.sc-item{border:1.8px solid var(--g-pale);border-radius:12px;padding:14px 16px;margin-bottom:12px;background:var(--white)}
+.sc-starter{font-size:.95rem;color:var(--txt);margin-bottom:10px;line-height:1.6;font-weight:600}
+.sc-starter .word-hl{color:var(--g-mid);font-weight:800}
+.sc-textarea{width:100%;border:1.8px solid var(--g-pale);border-radius:8px;padding:8px 12px;font-size:.88rem;font-family:'Nunito',sans-serif;color:var(--txt);resize:vertical;min-height:60px;outline:none;transition:border-color .2s}
+.sc-textarea:focus{border-color:var(--g-mid)}
+.sc-hint{font-size:.75rem;color:var(--g-pale-dark,#8aab93);font-style:italic;margin-top:4px}
+
+/* ─── Buttons ─── */
+.btn-check{background:var(--g-mid);color:#fff;border:none;padding:10px 26px;border-radius:99px;font-size:.9rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-check:hover{background:var(--g-deep);transform:translateY(-1px)}
+.btn-reset{background:var(--g-mist);color:var(--g-mid);border:1.8px solid var(--g-pale);padding:8px 18px;border-radius:99px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s}
+.btn-reset:hover{background:var(--g-100)}
+.btn-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.score-inline{font-size:.85rem;font-weight:800;color:var(--g-deep);padding:6px 14px;background:var(--g-100);border-radius:99px}
+
+/* ─── Completion banner ─── */
+.session-done{display:none;background:linear-gradient(120deg,var(--g-deep),var(--g-mid));border-radius:18px;padding:28px;text-align:center;margin-top:10px;color:#fff}
+.session-done.show{display:block;animation:fadeUp .5s ease both}
+.session-done .big-em{font-size:2.5rem;margin-bottom:8px}
+.session-done h3{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:8px}
+.session-done p{opacity:.85;font-size:.92rem}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:540px){
+  .options,.sort-buckets{grid-template-columns:1fr}
+  .hero-flowers{display:none}
+  .score-panel{display:none}
+}
+</style>
+</head>
+<body>
+
+<div id="leaf-bg"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">🌿 <span>Vocab Garden · Review</span></div>
+  <div class="session-switcher">
+    <button class="sess-btn active" onclick="switchSess(1)">🌱 Session 1 (1–10)</button>
+    <button class="sess-btn"       onclick="switchSess(2)">🌳 Session 2 (11–20)</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero-banner">
+  <div>
+    <div class="hero-txt">
+      <h1 id="hero-title">Session 1 Review — Words 1–10</h1>
+      <p id="hero-sub">5 dạng bài · Hoàn thành từng phần để ghi điểm 🌟</p>
+    </div>
+  </div>
+  <div class="hero-flowers">🌺🌿🌸</div>
+  <div class="score-panel">
+    <div class="big" id="total-score">0</div>
+    <div class="lbl">points</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main-content"></div>
+
+<script>
+/* ═══════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════ */
+const DATA = {
+  s1: {
+    words: ["prose","fiction","verse","scholar","classify","challenge","pollutant","compound","concentrate","adverse"],
+
+    // EX 1 — Multiple Choice (5 questions)
+    mcq: [
+      {
+        q: 'Which sentence uses <span class="word-hl">prose</span> correctly?',
+        opts: [
+          "The poem's prose rhymed beautifully at the end of each verse.",
+          "Newspaper articles and novels are examples of prose writing.",
+          "She wrote a prose with four verses and a chorus.",
+          "Prose writing must always have a regular beat and rhythm."
+        ],
+        ans: 1,
+        explain: "Prose uses sentences and paragraphs — newspapers and novels are perfect examples."
+      },
+      {
+        q: 'A <span class="word-hl">scholar</span> is best described as someone who ___.',
+        opts: [
+          "writes best-selling fiction novels for teenagers",
+          "works in a factory producing academic textbooks",
+          "has studied a subject deeply and done academic research",
+          "teaches primary school students basic reading skills"
+        ],
+        ans: 2,
+        explain: "Scholars are academic experts — they research and study topics in great depth."
+      },
+      {
+        q: 'To <span class="word-hl">classify</span> something means to ___.',
+        opts: [
+          "count the total number of items in a list",
+          "put things into groups based on shared features",
+          "change the order of things in a sequence",
+          "remove items that do not belong anywhere"
+        ],
+        ans: 1,
+        explain: "Classify = arrange or sort into categories. Scientists classify living things this way."
+      },
+      {
+        q: 'Which word correctly completes this sentence? "Carbon monoxide is a dangerous air ___."',
+        opts: ["compound","verse","challenge","scholar"],
+        ans: 0,
+        explain: "'Pollutant' fits best here — but among these options, 'compound' (a chemically bonded substance) is the most logical choice in a chemistry/air quality context."
+      },
+      {
+        q: 'The word <span class="word-hl">adverse</span> means ___.',
+        opts: [
+          "extremely large in size",
+          "related to scientific experiments",
+          "harmful or having a negative effect",
+          "limited to a very small area"
+        ],
+        ans: 2,
+        explain: "Adverse effects = negative, harmful effects. 'Adverse weather' means bad weather."
+      }
+    ],
+
+    // EX 2 — Fill in the Blank (5 sentences)
+    fill: [
+      {
+        before: "The author decided to write in ", blank: "prose", after: " — her story uses sentences and paragraphs, not rhyming lines.",
+        hint: "p _ _ _ e"
+      },
+      {
+        before: "Scientists ", blank: "classify", after: " living things into groups like mammals, reptiles, and birds.",
+        hint: "c _ _ _ _ _ fy"
+      },
+      {
+        before: "The first ", blank: "verse", after: " of the poem describes a peaceful forest in spring.",
+        hint: "v _ _ _ e"
+      },
+      {
+        before: "Air pollution has ", blank: "adverse", after: " effects on the health of children who live near busy roads.",
+        hint: "a _ _ _ _ _ e"
+      },
+      {
+        before: "A ", blank: "scholar", after: " spent twenty years researching the history of the novel in ancient Rome.",
+        hint: "s _ _ _ _ _ r"
+      }
+    ],
+
+    // EX 3 — Word Sort (into 2 categories)
+    sort: {
+      instruction: "Sort the words into two groups: those related to LITERATURE & WRITING and those related to SCIENCE & ENVIRONMENT.",
+      buckets: ["📚 Literature & Writing", "🌍 Science & Environment"],
+      items: [
+        {word:"prose",     bucket:0},
+        {word:"fiction",   bucket:0},
+        {word:"verse",     bucket:0},
+        {word:"challenge", bucket:0},
+        {word:"pollutant", bucket:1},
+        {word:"compound",  bucket:1},
+        {word:"concentrate",bucket:1},
+        {word:"adverse",   bucket:1},
+      ]
+    },
+
+    // EX 4 — Odd One Out (3 groups)
+    odd: [
+      {
+        q: "Which word does NOT belong in the group?",
+        words: ["prose","verse","fiction","pollutant"],
+        ans: 3,
+        explain: "'Pollutant' is about science/environment. The others are all literary terms."
+      },
+      {
+        q: "Three of these words relate to writing and literature. Which one is different?",
+        words: ["scholar","classify","compound","fiction"],
+        ans: 2,
+        explain: "'Compound' is a chemistry term. The others can all relate to academic study and literature."
+      },
+      {
+        q: "Which word is NOT about something harmful or negative?",
+        words: ["adverse","pollutant","verse","concentrate"],
+        ans: 2,
+        explain: "'Verse' is a neutral literary term. 'Adverse' and 'pollutant' are negative; 'concentrate' can mean increasing a harmful substance."
+      }
+    ],
+
+    // EX 5 — Error Correction (4 sentences)
+    errors: [
+      {
+        display: "Scholars disagree about the date, but most <u>classify</u> early Greek writing as poems, not novels.",
+        underline: "classify",
+        ans: "classify",
+        isCorrect: true,
+        explain: "✓ This is actually correct! 'Classify' is used correctly here."
+      },
+      {
+        display: "Carbon monoxide is a common air <u>scholar</u> that comes from burning fuel.",
+        underline: "scholar",
+        ans: "pollutant",
+        isCorrect: false,
+        explain: "✗ 'Scholar' is a person (an academic expert). The correct word is 'pollutant' — a harmful substance."
+      },
+      {
+        display: "Most fiction today is written as <u>verse</u>, using sentences and paragraphs.",
+        underline: "verse",
+        ans: "prose",
+        isCorrect: false,
+        explain: "✗ Verse uses rhyming lines. Writing with sentences and paragraphs is 'prose'."
+      },
+      {
+        display: "The new factory has <u>adverse</u> effects on air quality in the city.",
+        underline: "adverse",
+        ans: "adverse",
+        isCorrect: true,
+        explain: "✓ Correct! 'Adverse' means harmful/negative — perfect here."
+      }
+    ]
+  },
+
+  /* ─── SESSION 2 ─── */
+  s2: {
+    words: ["detect","purification","vegetation","localized","noxious","alter","vast","establish","emission","numerical"],
+
+    mcq: [
+      {
+        q: 'Which sentence uses <span class="word-hl">noxious</span> correctly?',
+        opts: [
+          "The noxious scent of fresh flowers filled the garden.",
+          "Scientists discovered a noxious gas leaking from the factory pipes.",
+          "The noxious sunshine made everyone feel happy and energetic.",
+          "She wrote a noxious poem about summer and butterflies."
+        ],
+        ans: 1,
+        explain: "Noxious = harmful or poisonous. A leaking gas from a factory is a perfect context."
+      },
+      {
+        q: 'To <span class="word-hl">alter</span> something means to ___.',
+        opts: [
+          "completely destroy and replace it with something new",
+          "make a small change to it",
+          "study it carefully using scientific methods",
+          "release it into the environment"
+        ],
+        ans: 1,
+        explain: "Alter = to change slightly, not completely transform. 'Chemical reactions altered the concentration.'"
+      },
+      {
+        q: 'Pollution is <span class="word-hl">localized</span> in a city. This means ___.',
+        opts: [
+          "it spreads equally across the whole country",
+          "it is found mainly in one specific area",
+          "it has been completely removed from that area",
+          "it is impossible to measure or detect"
+        ],
+        ans: 1,
+        explain: "Localized = restricted to a particular place. Cities concentrate human pollution locally."
+      },
+      {
+        q: 'A <span class="word-hl">vast</span> majority means ___.',
+        opts: [
+          "exactly half of the total",
+          "a very large proportion; much more than half",
+          "a small but important minority",
+          "an unknown or uncertain amount"
+        ],
+        ans: 1,
+        explain: "Vast = extremely large. 'The vast majority of fiction is written in prose' = almost all of it."
+      },
+      {
+        q: 'Which word fits best? "The government will ___ new laws to control vehicle emissions."',
+        opts: ["detect","establish","alter","emit"],
+        ans: 1,
+        explain: "Establish = set up officially. Governments establish laws, rules, and organisations."
+      }
+    ],
+
+    fill: [
+      {
+        before: "Scientists use special equipment to ", blank: "detect", after: " tiny amounts of sulfur dioxide in the air.",
+        hint: "d _ _ _ _ t"
+      },
+      {
+        before: "The forest fire destroyed all the ", blank: "vegetation", after: " on the hillside, leaving only bare soil.",
+        hint: "v _ _ _ _ _ _ _ _ n"
+      },
+      {
+        before: "Chemical reactions can ", blank: "alter", after: " the concentration of pollutants in the atmosphere over time.",
+        hint: "a _ _ _ r"
+      },
+      {
+        before: "The flood damage was ", blank: "localized", after: " — it only affected the riverside district, not the whole city.",
+        hint: "l _ _ _ _ _ _ _ d"
+      },
+      {
+        before: "Nature's air ", blank: "purification", after: " system moves compounds from the air into water or soil.",
+        hint: "p _ _ _ _ _ _ _ _ _ _ n"
+      }
+    ],
+
+    sort: {
+      instruction: "Sort the words into two groups: those with a NEGATIVE meaning (harmful / bad) and those with a NEUTRAL or POSITIVE meaning.",
+      buckets: ["⚠️ Negative / Harmful", "✅ Neutral / Positive"],
+      items: [
+        {word:"noxious",      bucket:0},
+        {word:"emission",     bucket:0},
+        {word:"localized",    bucket:1},
+        {word:"vast",         bucket:1},
+        {word:"establish",    bucket:1},
+        {word:"purification", bucket:1},
+        {word:"alter",        bucket:1},
+        {word:"detect",       bucket:1},
+      ]
+    },
+
+    odd: [
+      {
+        q: "Three words relate to science and the environment. Which one is about SIZE or SCALE only?",
+        words: ["emission","vegetation","vast","noxious"],
+        ans: 2,
+        explain: "'Vast' describes size/scale. The others all relate directly to environmental science."
+      },
+      {
+        q: "Which word does NOT describe something you can do to a rule or law?",
+        words: ["establish","alter","purification","challenge"],
+        ans: 2,
+        explain: "'Purification' is a process (cleaning), not an action you do to a law. You establish, alter, or challenge laws."
+      },
+      {
+        q: "Three of these words relate to measurement or observation. Which is the odd one out?",
+        words: ["detect","numerical","noxious","establish"],
+        ans: 3,
+        explain: "'Establish' means to set up/create — it's about creating, not measuring or observing."
+      }
+    ],
+
+    errors: [
+      {
+        display: "The factory releases <u>noxious</u> gases that are harmful to human health.",
+        underline: "noxious",
+        ans: "noxious",
+        isCorrect: true,
+        explain: "✓ Correct! Noxious = harmful/poisonous. This sentence is perfectly written."
+      },
+      {
+        display: "The storm damage was <u>emission</u> — only three streets in the town were affected.",
+        underline: "emission",
+        ans: "localized",
+        isCorrect: false,
+        explain: "✗ 'Emission' means gas released into the air. The correct word is 'localized' (limited to one area)."
+      },
+      {
+        display: "The government decided to <u>detect</u> new laws controlling air pollution last year.",
+        underline: "detect",
+        ans: "establish",
+        isCorrect: false,
+        explain: "✗ 'Detect' means to discover/find. To create new laws officially, use 'establish'."
+      },
+      {
+        display: "Biogeochemical cycles <u>alter</u> the concentration of compounds through chemical reactions.",
+        underline: "alter",
+        ans: "alter",
+        isCorrect: true,
+        explain: "✓ Correct! Alter = to change. This is a great use of the word."
+      }
+    ]
+  }
+};
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let currentSess = 1;
+let totalScore  = 0;
+let sortState   = {};   // {word: bucketIndex}
+const answered  = {};   // track answered items to avoid double-scoring
+
+/* ═══════════════════════════════════════════
+   BUILD
+═══════════════════════════════════════════ */
+function build() {
+  const d  = currentSess === 1 ? DATA.s1 : DATA.s2;
+  const el = document.getElementById('main-content');
+  el.innerHTML = '';
+
+  el.appendChild(buildMCQ(d));
+  el.appendChild(buildFill(d));
+  el.appendChild(buildSort(d));
+  el.appendChild(buildOdd(d));
+  el.appendChild(buildErrors(d));
+
+  const done = document.createElement('div');
+  done.className = 'session-done';
+  done.id = 'sess-done';
+  done.innerHTML = `
+    <div class="big-em">🌸🏆</div>
+    <h3>Session ${currentSess} Complete!</h3>
+    <p>You've reviewed all exercises for Session ${currentSess}. ${currentSess===1?'Move on to Session 2 when ready!':'Amazing work — you finished all 20 words! 🌿'}</p>
+  `;
+  el.appendChild(done);
+}
+
+/* ─── EX 1: MCQ ─── */
+function buildMCQ(d) {
+  const card = mkCard('ex-mcq', '🔘', 'Exercise 1 — Multiple Choice', 'Choose the correct answer');
+  const body = card.querySelector('.ex-body');
+
+  body.innerHTML += `<div class="prog-wrap"><div class="prog-fill" id="mcq-prog" style="width:0%"></div></div>`;
+
+  d.mcq.forEach((q, i) => {
+    const item = document.createElement('div');
+    item.className = 'mcq-item';
+    item.innerHTML = `
+      <div class="mcq-q">${i+1}. ${q.q}</div>
+      <div class="options" id="mcq-opts-${currentSess}-${i}">
+        ${q.opts.map((o,oi)=>`<button class="opt" onclick="answerMCQ(${i},${oi})">${String.fromCharCode(65+oi)}. ${o}</button>`).join('')}
+      </div>
+      <div class="mcq-fb" id="mcq-fb-${currentSess}-${i}"></div>
+    `;
+    body.appendChild(item);
+  });
+
+  body.innerHTML += `<div style="margin-top:6px"><span id="mcq-score-${currentSess}" class="score-inline" style="display:none"></span></div>`;
+  return card;
+}
+
+function answerMCQ(qi, oi) {
+  const d     = currentSess === 1 ? DATA.s1 : DATA.s2;
+  const q     = d.mcq[qi];
+  const key   = `mcq-${currentSess}-${qi}`;
+  if (answered[key]) return;
+
+  const opts  = document.querySelectorAll(`#mcq-opts-${currentSess}-${qi} .opt`);
+  const fb    = document.getElementById(`mcq-fb-${currentSess}-${qi}`);
+  opts.forEach(b => b.disabled = true);
+
+  if (oi === q.ans) {
+    opts[oi].classList.add('correct');
+    fb.className = 'mcq-fb ok';
+    fb.textContent = '✓ Correct! ' + q.explain;
+    if (!answered[key]) { totalScore += 2; updateScore(); answered[key]=true; }
+  } else {
+    opts[oi].classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    fb.className = 'mcq-fb err';
+    fb.textContent = '✗ ' + q.explain;
+    answered[key] = true;
+  }
+
+  // update progress
+  const done = Object.keys(answered).filter(k=>k.startsWith(`mcq-${currentSess}`)).length;
+  document.getElementById(`mcq-prog`).style.width = (done/d.mcq.length*100)+'%';
+  if(done===d.mcq.length){
+    const sc=document.getElementById(`mcq-score-${currentSess}`);
+    sc.style.display='inline';
+    const pts=Object.keys(answered).filter(k=>k.startsWith(`mcq-${currentSess}`)&&answered[k]===true).length;
+  }
+}
+
+/* ─── EX 2: Fill in Blank ─── */
+function buildFill(d) {
+  const card = mkCard('ex-fill','✏️','Exercise 2 — Fill in the Blank','Use the correct word from Session vocabulary');
+  const body = card.querySelector('.ex-body');
+
+  body.innerHTML += `<p style="font-size:.82rem;color:var(--g-mid);margin-bottom:14px;font-style:italic">💡 Hint letters are shown under each blank to help you.</p>`;
+
+  d.fill.forEach((f, i) => {
+    const item = document.createElement('div');
+    item.className = 'fill-item';
+    item.id = `fill-item-${currentSess}-${i}`;
+    item.innerHTML = `
+      <div class="fill-sent">
+        ${i+1}. ${f.before}<input class="fill-input" id="fi-${currentSess}-${i}" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="?"
+          onkeydown="if(event.key==='Enter')checkFillSingle(${i})">${f.after}
+      </div>
+      <div style="font-size:.75rem;color:var(--g-mid);margin-top:2px;padding-left:4px">🔤 Hint: <em>${f.hint}</em></div>
+      <div class="fill-fb" id="fill-fb-${currentSess}-${i}"></div>
+    `;
+    body.appendChild(item);
+  });
+
+  body.innerHTML += `
+    <div class="btn-row">
+      <button class="btn-check" onclick="checkAllFill()">✅ Check Answers</button>
+      <button class="btn-reset" onclick="resetFill()">↩ Reset</button>
+      <span id="fill-score-${currentSess}" class="score-inline" style="display:none"></span>
+    </div>`;
+  return card;
+}
+
+function checkFillSingle(i) {
+  const d   = currentSess===1?DATA.s1:DATA.s2;
+  const f   = d.fill[i];
+  const inp = document.getElementById(`fi-${currentSess}-${i}`);
+  const fb  = document.getElementById(`fill-fb-${currentSess}-${i}`);
+  const val = inp.value.trim().toLowerCase();
+  const ans = f.blank.toLowerCase();
+  if(!val) return;
+  inp.disabled = true;
+  if(val===ans){
+    inp.classList.add('correct');
+    fb.className='fill-fb ok';fb.textContent='✓ Correct!';
+    document.getElementById(`fill-item-${currentSess}-${i}`).classList.add('correct-bg');
+    return true;
+  } else {
+    inp.classList.add('wrong');
+    fb.className='fill-fb err';fb.textContent=`✗ Answer: ${f.blank}`;
+    document.getElementById(`fill-item-${currentSess}-${i}`).classList.add('wrong-bg');
+    return false;
+  }
+}
+
+function checkAllFill(){
+  const d=currentSess===1?DATA.s1:DATA.s2;
+  let correct=0;
+  d.fill.forEach((_,i)=>{ if(checkFillSingle(i)) correct++; });
+  const sc=document.getElementById(`fill-score-${currentSess}`);
+  sc.style.display='inline';
+  sc.textContent=`${correct} / ${d.fill.length} correct`;
+  totalScore += correct; updateScore();
+}
+
+function resetFill(){
+  const d=currentSess===1?DATA.s1:DATA.s2;
+  d.fill.forEach((_,i)=>{
+    const inp=document.getElementById(`fi-${currentSess}-${i}`);
+    inp.value='';inp.disabled=false;
+    inp.classList.remove('correct','wrong');
+    document.getElementById(`fill-fb-${currentSess}-${i}`).textContent='';
+    document.getElementById(`fill-item-${currentSess}-${i}`).classList.remove('correct-bg','wrong-bg');
+  });
+  document.getElementById(`fill-score-${currentSess}`).style.display='none';
+}
+
+/* ─── EX 3: Word Sort ─── */
+function buildSort(d) {
+  const card = mkCard('ex-sort','🗂️','Exercise 3 — Word Sort','Drag or click words into the correct category');
+  const body = card.querySelector('.ex-body');
+  sortState = {};
+
+  const bankId  = `bank-${currentSess}`;
+  const b0Id    = `bucket-0-${currentSess}`;
+  const b1Id    = `bucket-1-${currentSess}`;
+
+  body.innerHTML = `
+    <p class="sort-instruction">${d.sort.instruction}</p>
+    <p style="font-size:.78rem;color:var(--g-mid);margin-bottom:8px">👆 Click a word to move it into a category, click again to move it back to the bank.</p>
+    <div class="word-bank" id="${bankId}">
+      ${d.sort.items.map(it=>`<span class="word-chip" id="chip-${currentSess}-${it.word}" onclick="sortClick('${it.word}')">${it.word}</span>`).join('')}
+    </div>
+    <div class="sort-buckets">
+      <div class="sort-bucket">
+        <h4>${d.sort.buckets[0]}</h4>
+        <div class="chips-area" id="${b0Id}"></div>
+      </div>
+      <div class="sort-bucket">
+        <h4>${d.sort.buckets[1]}</h4>
+        <div class="chips-area" id="${b1Id}"></div>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn-check" onclick="checkSort()">✅ Check Sort</button>
+      <button class="btn-reset" onclick="build()">↩ Reset</button>
+      <span id="sort-score-${currentSess}" class="score-inline" style="display:none"></span>
+    </div>
+    <div class="sort-result" id="sort-result-${currentSess}"></div>
+  `;
+  return card;
+}
+
+let sortPlaced = {};  // word → bucket index (0 or 1), or -1 if in bank
+function sortClick(word) {
+  if(!sortPlaced) sortPlaced={};
+  const chip    = document.getElementById(`chip-${currentSess}-${word}`);
+  const bankEl  = document.getElementById(`bank-${currentSess}`);
+  const b0      = document.getElementById(`bucket-0-${currentSess}`);
+  const b1      = document.getElementById(`bucket-1-${currentSess}`);
+
+  const cur = sortPlaced[word] !== undefined ? sortPlaced[word] : -1;
+
+  // Remove from current location
+  chip.remove();
+  chip.style.background='';
+
+  if (cur === -1) {
+    // In bank → go to bucket 0
+    b0.appendChild(chip);
+    sortPlaced[word] = 0;
+    chip.style.background='var(--g-mid)';
+  } else if (cur === 0) {
+    // In bucket 0 → go to bucket 1
+    b1.appendChild(chip);
+    sortPlaced[word] = 1;
+    chip.style.background='var(--soil)';
+  } else {
+    // In bucket 1 → back to bank
+    bankEl.appendChild(chip);
+    sortPlaced[word] = -1;
+    chip.style.background='var(--g-deep)';
+  }
+}
+
+function checkSort(){
+  const d   = currentSess===1?DATA.s1:DATA.s2;
+  let correct=0, total=d.sort.items.length;
+  d.sort.items.forEach(it=>{
+    const chip=document.getElementById(`chip-${currentSess}-${it.word}`);
+    const placed=sortPlaced[it.word];
+    if(placed===undefined||placed===-1){
+      chip.style.border='2px solid var(--red)';
+    } else if(placed===it.bucket){
+      chip.style.background='#2e7d32';chip.style.border='2px solid #1b5e20';
+      correct++;
+    } else {
+      chip.style.background='var(--red)';chip.style.border='2px solid var(--red)';
+    }
+  });
+  const sc=document.getElementById(`sort-score-${currentSess}`);
+  sc.style.display='inline';sc.textContent=`${correct} / ${total} correct`;
+  const result=document.getElementById(`sort-result-${currentSess}`);
+  result.textContent = correct===total?'🎉 Perfect! All words sorted correctly!':'💪 Check the highlighted words and try again.';
+  totalScore+=correct; updateScore();
+}
+
+/* ─── EX 4: Odd One Out ─── */
+function buildOdd(d) {
+  const card = mkCard('ex-odd','🔍','Exercise 4 — Odd One Out','Find the word that does NOT belong');
+  const body = card.querySelector('.ex-body');
+  body.innerHTML='<p style="font-size:.82rem;color:var(--g-mid);margin-bottom:14px;font-style:italic">💡 Think carefully about how the words relate to each other.</p>';
+
+  d.odd.forEach((q,i)=>{
+    const item=document.createElement('div');
+    item.className='odd-item';
+    item.innerHTML=`
+      <div class="odd-q">${i+1}. ${q.q}</div>
+      <div class="odd-options" id="odd-opts-${currentSess}-${i}">
+        ${q.words.map((w,wi)=>`<button class="odd-btn" onclick="answerOdd(${i},${wi})">${w}</button>`).join('')}
+      </div>
+      <div class="odd-fb" id="odd-fb-${currentSess}-${i}"></div>
+    `;
+    body.appendChild(item);
+  });
+  return card;
+}
+
+function answerOdd(qi,wi){
+  const d   = currentSess===1?DATA.s1:DATA.s2;
+  const q   = d.odd[qi];
+  const key = `odd-${currentSess}-${qi}`;
+  if(answered[key]) return;
+
+  const btns = document.querySelectorAll(`#odd-opts-${currentSess}-${qi} .odd-btn`);
+  const fb   = document.getElementById(`odd-fb-${currentSess}-${qi}`);
+  btns.forEach(b=>b.disabled=true);
+
+  if(wi===q.ans){
+    btns[wi].classList.add('correct');
+    fb.className='odd-fb ok';fb.textContent='✓ Correct! '+q.explain;
+    totalScore+=2; updateScore();
+  } else {
+    btns[wi].classList.add('wrong');
+    btns[q.ans].classList.add('correct');
+    fb.className='odd-fb err';fb.textContent='✗ '+q.explain;
+  }
+  answered[key]=true;
+}
+
+/* ─── EX 5: Error Correction ─── */
+function buildErrors(d){
+  const card = mkCard('ex-err','🛠️','Exercise 5 — Error Correction','Find the underlined word. Is it correct? If wrong, write the correct word.');
+  const body = card.querySelector('.ex-body');
+  body.innerHTML='<p style="font-size:.82rem;color:var(--g-mid);margin-bottom:14px;font-style:italic">✏️ If the underlined word is correct, write it again. If it is wrong, write the correct word.</p>';
+
+  d.errors.forEach((e,i)=>{
+    const item=document.createElement('div');
+    item.className='err-item';
+    const sent=e.display.replace(`<u>${e.underline}</u>`,`<span class="underlined">${e.underline}</span>`);
+    item.innerHTML=`
+      <div class="err-sent">${i+1}. ${sent}</div>
+      <div class="err-row">
+        <span class="err-label">✏️ Your answer:</span>
+        <input class="err-input" id="err-inp-${currentSess}-${i}" type="text" autocomplete="off" spellcheck="false" placeholder="Type here…"
+          onkeydown="if(event.key==='Enter')checkErrSingle(${i})">
+        <span class="err-fb" id="err-fb-${currentSess}-${i}"></span>
+      </div>
+    `;
+    body.appendChild(item);
+  });
+
+  body.innerHTML+=`
+    <div class="btn-row">
+      <button class="btn-check" onclick="checkAllErrors()">✅ Check Answers</button>
+      <button class="btn-reset" onclick="resetErrors()">↩ Reset</button>
+      <span id="err-score-${currentSess}" class="score-inline" style="display:none"></span>
+    </div>`;
+  return card;
+}
+
+function checkErrSingle(i){
+  const d   = currentSess===1?DATA.s1:DATA.s2;
+  const e   = d.errors[i];
+  const inp = document.getElementById(`err-inp-${currentSess}-${i}`);
+  const fb  = document.getElementById(`err-fb-${currentSess}-${i}`);
+  const val = inp.value.trim().toLowerCase();
+  if(!val) return false;
+  inp.disabled=true;
+  if(val===e.ans.toLowerCase()){
+    inp.classList.add('correct');
+    fb.className='err-fb ok';fb.textContent='✓ '+e.explain;
+    return true;
+  } else {
+    inp.classList.add('wrong');
+    fb.className='err-fb err';fb.textContent=`✗ Correct answer: "${e.ans}" — ${e.explain}`;
+    return false;
+  }
+}
+
+function checkAllErrors(){
+  const d=currentSess===1?DATA.s1:DATA.s2;
+  let correct=0;
+  d.errors.forEach((_,i)=>{ if(checkErrSingle(i)) correct++; });
+  const sc=document.getElementById(`err-score-${currentSess}`);
+  sc.style.display='inline';sc.textContent=`${correct} / ${d.errors.length} correct`;
+  totalScore+=correct; updateScore();
+  checkSessionDone();
+}
+
+function resetErrors(){
+  const d=currentSess===1?DATA.s1:DATA.s2;
+  d.errors.forEach((_,i)=>{
+    const inp=document.getElementById(`err-inp-${currentSess}-${i}`);
+    inp.value='';inp.disabled=false;
+    inp.classList.remove('correct','wrong');
+    document.getElementById(`err-fb-${currentSess}-${i}`).textContent='';
+  });
+  document.getElementById(`err-score-${currentSess}`).style.display='none';
+}
+
+/* ─── Helpers ─── */
+function mkCard(id, icon, title, badge){
+  const c=document.createElement('div');
+  c.className='ex-card';c.id=id;
+  c.innerHTML=`
+    <div class="ex-header">
+      <span class="icon">${icon}</span>
+      <h2>${title}</h2>
+      <span class="badge">${badge}</span>
+    </div>
+    <div class="ex-body"></div>
+  `;
+  return c;
+}
+
+function updateScore(){
+  document.getElementById('total-score').textContent=totalScore;
+}
+
+function checkSessionDone(){
+  const done=document.getElementById('sess-done');
+  if(done) done.classList.add('show');
+}
+
+function switchSess(n){
+  currentSess=n;
+  totalScore=0;
+  sortPlaced={};
+  Object.keys(answered).forEach(k=>delete answered[k]);
+  document.querySelectorAll('.sess-btn').forEach((b,i)=>b.classList.toggle('active',i+1===n));
+  document.getElementById('hero-title').textContent=`Session ${n} Review — Words ${n===1?'1–10':'11–20'}`;
+  updateScore();
+  build();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ─── Floating leaves ─── */
+function initLeaves(){
+  const bg=document.getElementById('leaf-bg');
+  const em=['🍃','🌿','🍀','🌱','🌾','🌺','🌸','🌻'];
+  for(let i=0;i<24;i++){
+    const s=document.createElement('span');
+    s.textContent=em[i%em.length];
+    s.style.left=(Math.random()*100)+'vw';
+    s.style.fontSize=(0.8+Math.random()*1.1)+'rem';
+    s.style.animationDuration=(14+Math.random()*20)+'s';
+    s.style.animationDelay=-(Math.random()*34)+'s';
+    bg.appendChild(s);
+  }
+}
+
+initLeaves();
+build();
+</script>
+</body>
+</html>
